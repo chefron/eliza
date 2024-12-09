@@ -222,7 +222,7 @@ export class MessageManager {
             const response = await generateShouldRespond({
                 runtime: this.runtime,
                 context: shouldRespondContext,
-                modelClass: ModelClass.SMALL,
+                modelClass: ModelClass.LARGE,
             });
 
             return response === "RESPOND";
