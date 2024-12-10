@@ -28,7 +28,7 @@ const twitterPostTemplate = `
 
 # Task: Generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
 Write a single statement that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
-Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than {{maxTweetLength}}.`;
+Your response should not contain any questions. Brief, concise statements only. Never use emojis. Never use ellipses. The total character count MUST be less than {{maxTweetLength}}.`;
 
 /**
  * Truncate text to fit within the Twitter character limit, ensuring it ends at a complete sentence.
@@ -37,6 +37,10 @@ function truncateToCompleteSentence(
     text: string,
     maxTweetLength: number
 ): string {
+    console.log("Tweet length:", text.length);
+    console.log("Max length:", maxTweetLength);
+    console.log("Original text:", text);
+    // If text is already within limit, return as-is with no truncation
     if (text.length <= maxTweetLength) {
         return text;
     }
