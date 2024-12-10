@@ -87,6 +87,7 @@ export class ClientBase extends EventEmitter {
     runtime: IAgentRuntime;
     directions: string;
     lastCheckedTweetId: bigint | null = null;
+    lastTweetId: string | null = null;
     imageDescriptionService: IImageDescriptionService;
     temperature: number = 0.5;
 
@@ -99,7 +100,7 @@ export class ClientBase extends EventEmitter {
             console.warn("Tweet is undefined, skipping cache");
             return;
         }
-
+        this.lastTweetId = tweet.id;
         this.runtime.cacheManager.set(`twitter/tweets/${tweet.id}`, tweet);
     }
 

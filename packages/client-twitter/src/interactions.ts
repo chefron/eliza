@@ -127,27 +127,45 @@ export class TwitterInteractionClient {
 
             // for each tweet candidate, handle the tweet
             for (const tweet of uniqueTweetCandidates) {
-                if (
-                    !this.client.lastCheckedTweetId ||
-                    BigInt(tweet.id) > this.client.lastCheckedTweetId
-                ) {
+                if (!this.client.lastCheckedTweetId ||
+                    BigInt(tweet.id) > this.client.lastCheckedTweetId ||
+                    tweet.inReplyToStatusId === this.client.lastTweetId) {
+
                     // Generate the tweetId UUID the same way it's done in handleTweet
                     const tweetId = stringToUuid(
                         tweet.id + "-" + this.runtime.agentId
                     );
 
                     // Check if we've already processed this tweet
-                    const existingResponse =
-                        await this.runtime.messageManager.getMemoryById(
-                            tweetId
-                        );
+                //    const existingResponse =
+                //        await this.runtime.messageManager.getMemoryById(
+                //            tweetId
+                //        );
 
-                    if (existingResponse) {
-                        elizaLogger.log(
-                            `Already responded to tweet ${tweet.id}, skipping`
-                        );
-                        continue;
-                    }
+
+                // if (existingResponse) {
+                //     elizaLogger.log(
+                //     `Already responded to tweet ${tweet.id}, skipping`
+                //        );
+                //      continue;
+                //    }
+
+                const memoryId = stringToUuid(tweet.id + "-" + this.runtime.agentId);
+                const existingMemory = await this.runtime.messageManager.getMemoriesByRoomIds({
+                    roomIds: [stringToUuid(tweet.conversationId + "-" + this.runtime.agentId)],
+                });
+
+                // Check if we've already responded to this tweet
+                const alreadyResponded = existingMemory.some(memory =>
+                    memory.content.inReplyTo === tweet.id ||
+                    memory.id === memoryId
+                );
+
+                if (alreadyResponded) {
+                    elizaLogger.log(`Already processed tweet ${tweet.id}, skipping`);
+                    continue;
+                }
+
                     elizaLogger.log("New Tweet found", tweet.permanentUrl);
 
                     const roomId = stringToUuid(
@@ -317,7 +335,7 @@ export class TwitterInteractionClient {
         const response = await generateMessageResponse({
             runtime: this.runtime,
             context,
-            modelClass: ModelClass.MEDIUM,
+            modelClass: ModelClass.LARGE,
         });
 
         const removeQuotes = (str: string) =>
