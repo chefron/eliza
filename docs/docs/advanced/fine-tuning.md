@@ -39,9 +39,9 @@ const models = {
       stop: [],
       maxInputTokens: 200000,
       maxOutputTokens: 8192,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-      temperature: 0.7,
+      frequency_penalty: 0.8,
+      presence_penalty: 0.8,
+      temperature: 0.9,
     },
     endpoint: "https://api.anthropic.com/v1",
     model: {
@@ -237,7 +237,7 @@ const anthropicSettings = {
     stop: [],
     maxInputTokens: 200000,
     maxOutputTokens: 8192,
-    temperature: 0.3,
+    temperature: 0.9,
   },
   model: {
     [ModelClass.SMALL]: "claude-3-5-haiku",

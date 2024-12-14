@@ -46,9 +46,9 @@ export const models: Models = {
             stop: [],
             maxInputTokens: 200000,
             maxOutputTokens: 4096,
-            frequency_penalty: 0.4,
-            presence_penalty: 0.4,
-            temperature: 0.7,
+            frequency_penalty: 0.8,
+            presence_penalty: 0.8,
+            temperature: 0.9,
         },
         endpoint: "https://api.anthropic.com/v1",
         model: {

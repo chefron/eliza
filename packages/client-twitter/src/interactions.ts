@@ -300,25 +300,30 @@ export class TwitterInteractionClient {
             this.client.saveRequestMessage(message, state);
         }
 
-        const shouldRespondContext = composeContext({
-            state,
-            template:
-                this.runtime.character.templates
-                    ?.twitterShouldRespondTemplate ||
-                this.runtime.character?.templates?.shouldRespondTemplate ||
-                twitterShouldRespondTemplate,
-        });
+        // Add override for specific user
+        if (tweet.username === "yungcarlthedev") {
+            elizaLogger.log("Always responding to yungcarlthedev");
+        } else {
+            const shouldRespondContext = composeContext({
+                state,
+                template:
+                    this.runtime.character.templates
+                        ?.twitterShouldRespondTemplate ||
+                    this.runtime.character?.templates?.shouldRespondTemplate ||
+                    twitterShouldRespondTemplate,
+            });
 
-        const shouldRespond = await generateShouldRespond({
-            runtime: this.runtime,
-            context: shouldRespondContext,
-            modelClass: ModelClass.MEDIUM,
-        });
+            const shouldRespond = await generateShouldRespond({
+                runtime: this.runtime,
+                context: shouldRespondContext,
+                modelClass: ModelClass.LARGE,
+            });
 
-        // Promise<"RESPOND" | "IGNORE" | "STOP" | null> {
-        if (shouldRespond !== "RESPOND") {
-            elizaLogger.log("Not responding to message");
-            return { text: "Response Decision:", action: shouldRespond };
+            // Promise<"RESPOND" | "IGNORE" | "STOP" | null> {
+            if (shouldRespond !== "RESPOND") {
+                elizaLogger.log("Not responding to message");
+                return { text: "Response Decision:", action: shouldRespond };
+            }
         }
 
         const context = composeContext({

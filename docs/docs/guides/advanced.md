@@ -269,11 +269,11 @@ const customRuntime = new AgentRuntime({
 ```typescript
 const modelConfig = {
   modelClass: ModelClass.LARGE,
-  temperature: 0.7,
+  temperature: 0.9,
   maxTokens: 2000,
   topP: 0.9,
-  frequencyPenalty: 0.5,
-  presencePenalty: 0.5,
+  frequencyPenalty: 0.8,
+  presencePenalty: 0.8,
 };
 
 const response = await generateText({
