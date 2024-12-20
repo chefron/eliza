@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ai16z/eliza": "workspace:*",
     "jsdom": "^25.0.1",
     "node-fetch": "^3.3.2",
     "playwright": "1.48.2"

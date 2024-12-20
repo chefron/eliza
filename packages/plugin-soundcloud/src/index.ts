@@ -2,39 +2,39 @@ import { chromium } from 'playwright';
 
 async function getSoundCloudStats(trackUrl: string) {
     try {
-        const browser = await chromium.launch();
+        const browser = await chromium.launch({ headless: true });
         const page = await browser.newPage();
         await page.goto(trackUrl);
 
-        // Wait for stats to load
-        await page.waitForSelector('.sc-ministats-plays');
+        // Wait for the main track container to load
+        const mainTrackSelector = '.l-about-main';
+        await page.waitForSelector(mainTrackSelector, { timeout: 5000 });
 
-        // Get play count with null checking
-        const playsElement = await page.$('.sc-ministats-plays');
+        const mainTrackContainer = await page.$(mainTrackSelector);
+
+        if (!mainTrackContainer) {
+            console.error(`Main track container not found for ${trackUrl}`);
+            return null;
+        }
+
+        // Get plays (scoped to main track)
+        const playsElement = await mainTrackContainer.$('.sc-ministats-plays');
         const playsText = playsElement ? await playsElement.textContent() : null;
         const plays = playsText ? parseInt(playsText.match(/\d+/)?.[0] || '0') : 0;
 
-        // Get likes count
-        const likesText = await page.evaluate(() => {
-            const likesEl = document.querySelector('.sc-ministats-likes span[aria-hidden="true"]');
-            return likesEl ? likesEl.textContent : '0';
-        });
-        const likes = parseInt(likesText || '0');
+        // Get likes (scoped to main track)
+        const likesElement = await mainTrackContainer.$('.sc-ministats-likes span[aria-hidden="true"]');
+        const likesText = likesElement ? await likesElement.textContent() : null;
+        const likes = likesText ? parseInt(likesText || '0') : 0;
 
-        // Get reposts count
-        const repostsText = await page.evaluate(() => {
-            const repostsEl = document.querySelector('.sc-ministats-reposts span[aria-hidden="true"]');
-            return repostsEl ? repostsEl.textContent : '0';
-        });
-        const reposts = parseInt(repostsText || '0');
+        // Get reposts (scoped to main track)
+        const repostsElement = await mainTrackContainer.$('.sc-ministats-reposts span[aria-hidden="true"]');
+        const repostsText = repostsElement ? await repostsElement.textContent() : null;
+        const reposts = repostsText ? parseInt(repostsText || '0') : 0;
 
-        // Get days since release
-        const daysReleasedText = await page.evaluate(() => {
-            const timeEl = document.querySelector('time.relativeTime span[aria-hidden="true"]');
-            return timeEl ? timeEl.textContent : null;
-        });
-
-        // Parse days from text (e.g., "2 days ago")
+        // Get days since release (not scoped to main track)
+        const timeElement = await page.$('time.relativeTime span[aria-hidden="true"]');
+        const daysReleasedText = timeElement ? await timeElement.textContent() : null;
         const daysReleased = daysReleasedText
             ? parseInt(daysReleasedText.match(/\d+/)?.[0] || '0')
             : null;
@@ -54,11 +54,10 @@ async function getSoundCloudStats(trackUrl: string) {
             playsPerDay,
             likesPerDay,
             repostsPerDay,
-            url: trackUrl
+            url: trackUrl,
         };
-
     } catch (error) {
-        console.error('Error fetching SoundCloud stats:', error);
+        console.error(`Error fetching stats for ${trackUrl}:`, error);
         return null;
     }
 }
@@ -70,7 +69,7 @@ const tracks = [
 
 async function getAllTrackStats() {
     const stats = await Promise.all(
-        tracks.map(track => getSoundCloudStats(track))
+        tracks.map((track) => getSoundCloudStats(track))
     );
     console.log("All track stats:", stats);
     return stats;
